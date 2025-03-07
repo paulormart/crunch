@@ -8,7 +8,7 @@ name: Rust CI - Create Release
 
 jobs:
   build-ubuntu-latest:
-    name: Build binary on Ubuntu latest
+    name: Build on Ubuntu latest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -38,25 +38,22 @@ jobs:
 
       - name: Generate SHA-256 hash file
         run: |
-          cd ./target/release
+          cd target/release
           sha256sum crunch > crunch.sha256
-
-      # Create a directory to store the artifacts
-      - run: mkdir -p /artifacts
       
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: crunch
-          path: /artifacts
+          path: target/release
 
       - uses: actions/upload-artifact@v4
         with:
           name: crunch.sha256
-          path: /artifacts
+          path: target/release
 
   build-ubuntu-2204:
-    name: Build binary on Ubuntu 22.04
+    name: Build on Ubuntu 22.04
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -88,27 +85,24 @@ jobs:
         run: |
           cd ./target/release
           sha256sum crunch > crunch.sha256
-
-      # Create a directory to store the artifacts
-      - run: mkdir -p /artifacts
       
       # Rename the binary and sha256 file to include the OS version
-      - run: mv ./target/release/crunch /artifacts/crunch.ubuntu-2204
-      - run: mv ./target/release/crunch.sha256 /artifacts/crunch.sha256.ubuntu-2204
+      - run: mv target/release/crunch target/release/crunch.ubuntu-2204
+      - run: mv target/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2204
 
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: crunch.ubuntu-2204
-          path: /artifacts
+          path: target/release
 
       - uses: actions/upload-artifact@v4
         with:
           name: crunch.sha256.ubuntu-2204
-          path: /artifacts
+          path: target/release
   
   build-ubuntu-2004:
-    name: Build binary on Ubuntu 20.04
+    name: Build on Ubuntu 20.04
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -141,23 +135,20 @@ jobs:
           cd ./target/release
           sha256sum crunch > crunch.sha256
 
-      # Create a directory to store the artifacts
-      - run: mkdir -p /artifacts
-      
       # Rename the binary and sha256 file to include the OS version
-      - run: mv ./target/release/crunch /artifacts/crunch.ubuntu-2004
-      - run: mv ./target/release/crunch.sha256 /artifacts/crunch.sha256.ubuntu-2004
+      - run: mv target/release/crunch target/release/crunch.ubuntu-2004
+      - run: mv target/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2004
 
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: crunch.ubuntu-2004
-          path: /artifacts
+          path: target/release
 
       - uses: actions/upload-artifact@v4
         with:
           name: crunch.sha256.ubuntu-2004
-          path: /artifacts
+          path: target/release
 
   create-release:
     needs: 
@@ -200,12 +191,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: crunch
-          path: /artifacts
+          path: target/release
 
       - uses: actions/download-artifact@v4
         with:
           name: crunch.sha256
-          path: /artifacts
+          path: target/release
 
       - name: Upload crunch binary on Ubuntu latest
         uses: actions/upload-release-asset@v1
@@ -213,7 +204,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch
+          asset_path: target/release/crunch
           asset_name: crunch
           asset_content_type: application/octet-stream
 
@@ -223,19 +214,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch.sha256
+          asset_path: target/release/crunch.sha256
           asset_name: crunch.sha256
           asset_content_type: text/plain
           
       - uses: actions/download-artifact@v4
         with:
           name: crunch.ubuntu-2204
-          path: /artifacts
+          path: target/release
 
       - uses: actions/download-artifact@v4
         with:
           name: crunch.sha256.ubuntu-2204
-          path: /artifacts
+          path: target/release
 
       - name: Upload crunch binary on Ubuntu 22.04
         uses: actions/upload-release-asset@v1
@@ -243,7 +234,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch
+          asset_path: target/release/crunch.ubuntu-2204
           asset_name: crunch.ubuntu-2204
           asset_content_type: application/octet-stream
 
@@ -253,19 +244,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch.sha256.ubuntu-2204
+          asset_path: target/release/crunch.sha256.ubuntu-2204
           asset_name: crunch.sha256.ubuntu-2204
           asset_content_type: text/plain
         
       - uses: actions/download-artifact@v4
         with:
           name: crunch.ubuntu-2004
-          path: /artifacts
+          path: target/release
 
       - uses: actions/download-artifact@v4
         with:
           name: crunch.sha256.ubuntu-2004
-          path: /artifacts
+          path: target/release
 
       - name: Upload crunch binary on Ubuntu 20.04
         uses: actions/upload-release-asset@v1
@@ -273,7 +264,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch.ubuntu-2004
+          asset_path: target/release/crunch.ubuntu-2004
           asset_name: crunch.ubuntu-2004
           asset_content_type: application/octet-stream
 
@@ -283,6 +274,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /artifacts/crunch.sha256.ubuntu-2004
+          asset_path: target/release/crunch.sha256.ubuntu-2004
           asset_name: crunch.sha256.ubuntu-2004
           asset_content_type: text/plain
