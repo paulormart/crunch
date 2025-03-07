@@ -7,11 +7,11 @@ on:
 name: Rust CI - Create Release
 
 jobs:
-  check:
-    name: Create Release
+  build-ubuntu-latest:
+    name: Build binary on Ubuntu latest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install Rust latest stable
         uses: actions-rs/toolchain@v1
@@ -41,6 +41,141 @@ jobs:
           cd ./target/release
           sha256sum crunch > crunch.sha256
 
+      # Create a directory to store the artifacts
+      - run: mkdir -p /artifacts
+      
+      # Upload the binary and sha256 file as artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch
+          path: /artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch.sha256
+          path: /artifacts
+
+  build-ubuntu-2204:
+    name: Build binary on Ubuntu 22.04
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+            profile: minimal
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        env:
+          CRUNCH_CONFIG_FILENAME: .env.example
+        with:
+          command: test
+
+      - name: Run cargo build 
+        uses: actions-rs/cargo@v1
+        env:
+          CRUNCH_CONFIG_FILENAME: .env.example
+        with:
+          command: build
+          args: --release
+
+      - name: Generate SHA-256 hash file
+        run: |
+          cd ./target/release
+          sha256sum crunch > crunch.sha256
+
+      # Create a directory to store the artifacts
+      - run: mkdir -p /artifacts
+      
+      # Rename the binary and sha256 file to include the OS version
+      - run: mv ./target/release/crunch /artifacts/crunch.ubuntu-2204
+      - run: mv ./target/release/crunch.sha256 /artifacts/crunch.sha256.ubuntu-2204
+
+      # Upload the binary and sha256 file as artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch.ubuntu-2204
+          path: /artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch.sha256.ubuntu-2204
+          path: /artifacts
+  
+  build-ubuntu-2004:
+    name: Build binary on Ubuntu 20.04
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+            profile: minimal
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        env:
+          CRUNCH_CONFIG_FILENAME: .env.example
+        with:
+          command: test
+
+      - name: Run cargo build 
+        uses: actions-rs/cargo@v1
+        env:
+          CRUNCH_CONFIG_FILENAME: .env.example
+        with:
+          command: build
+          args: --release
+
+      - name: Generate SHA-256 hash file
+        run: |
+          cd ./target/release
+          sha256sum crunch > crunch.sha256
+
+      # Create a directory to store the artifacts
+      - run: mkdir -p /artifacts
+      
+      # Rename the binary and sha256 file to include the OS version
+      - run: mv ./target/release/crunch /artifacts/crunch.ubuntu-2004
+      - run: mv ./target/release/crunch.sha256 /artifacts/crunch.sha256.ubuntu-2004
+
+      # Upload the binary and sha256 file as artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch.ubuntu-2004
+          path: /artifacts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crunch.sha256.ubuntu-2004
+          path: /artifacts
+
+  create-release:
+    needs: 
+      - build-ubuntu-latest
+      - build-ubuntu-2204
+      - build-ubuntu-2004
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust latest stable
+        uses: actions-rs/toolchain@v1
+        with:
+            profile: minimal
+            toolchain: stable
+            override: true
+            components: rustfmt, clippy
+
       - name: Get Rustc version
         id: get_rustc
         run: echo "rustc=$(rustc -V)" >> $GITHUB_OUTPUT
@@ -61,23 +196,93 @@ jobs:
           draft: true
           prerelease: false
 
-      - name: Upload crunch binary 
+      # Download the artifacts
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch
+          path: /artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch.sha256
+          path: /artifacts
+
+      - name: Upload crunch binary on Ubuntu latest
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/crunch
+          asset_path: /artifacts/crunch
           asset_name: crunch
           asset_content_type: application/octet-stream
 
-      - name: Upload crunch sha256
+      - name: Upload crunch sha256 on Ubuntu latest
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/release/crunch.sha256
+          asset_path: /artifacts/crunch.sha256
           asset_name: crunch.sha256
           asset_content_type: text/plain
           
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch.ubuntu-2204
+          path: /artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch.sha256.ubuntu-2204
+          path: /artifacts
+
+      - name: Upload crunch binary on Ubuntu 22.04
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /artifacts/crunch
+          asset_name: crunch.ubuntu-2204
+          asset_content_type: application/octet-stream
+
+      - name: Upload crunch sha256 on Ubuntu 22.04
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /artifacts/crunch.sha256.ubuntu-2204
+          asset_name: crunch.sha256.ubuntu-2204
+          asset_content_type: text/plain
+        
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch.ubuntu-2004
+          path: /artifacts
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: crunch.sha256.ubuntu-2004
+          path: /artifacts
+
+      - name: Upload crunch binary on Ubuntu 20.04
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /artifacts/crunch.ubuntu-2004
+          asset_name: crunch.ubuntu-2004
+          asset_content_type: application/octet-stream
+
+      - name: Upload crunch sha256 on Ubuntu 20.04
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /artifacts/crunch.sha256.ubuntu-2004
+          asset_name: crunch.sha256.ubuntu-2004
+          asset_content_type: text/plain
