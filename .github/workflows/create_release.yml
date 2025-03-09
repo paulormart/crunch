@@ -28,6 +28,8 @@ jobs:
         with:
           command: test
 
+      - run: rustup target add x86_64-unknown-linux-musl
+
       - name: Run cargo build
         uses: actions-rs/cargo@v1
         env:
