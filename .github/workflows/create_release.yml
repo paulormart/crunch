@@ -34,7 +34,7 @@ jobs:
           CRUNCH_CONFIG_FILENAME: .env.example
         with:
           command: build
-          args: --release -C target-feature=+crt-static
+          args: --release --target=x86_64-unknown-linux-musl
 
       - name: Generate SHA-256 hash file
         run: |
