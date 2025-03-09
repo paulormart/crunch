@@ -32,10 +32,9 @@ jobs:
         uses: actions-rs/cargo@v1
         env:
           CRUNCH_CONFIG_FILENAME: .env.example
-          RUSTFLAGS: -C target-feature=+crt-static
         with:
           command: build
-          args: --release
+          args: --release -C target-feature=+crt-static
 
       - name: Generate SHA-256 hash file
         run: |
