@@ -43,18 +43,22 @@ jobs:
 
       - name: Generate SHA-256 hash file
         run: |
-          cd target/release
+          cd target/x86_64-unknown-linux-musl/release
           sha256sum crunch > crunch.sha256
+
+      # Rename the binary and sha256 file to include the OS version
+      - run: mv target/x86_64-unknown-linux-musl/release/crunch target/release/crunch.linux-musl
+      - run: mv target/x86_64-unknown-linux-musl/release/crunch.sha256 target/release/crunch.sha256.linux-musl
 
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
         with:
-          name: crunch
+          name: crunch.linux-musl
           path: target/release
 
       - uses: actions/upload-artifact@v4
         with:
-          name: crunch.sha256
+          name: crunch.sha256.linux-musl
           path: target/release
 
   build-ubuntu-2204:
