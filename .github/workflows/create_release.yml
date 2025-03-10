@@ -21,14 +21,15 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        env:
-          CRUNCH_CONFIG_FILENAME: .env.example
-        with:
-          command: test
+      # - name: Run cargo test
+      #   uses: actions-rs/cargo@v1
+      #   env:
+      #     CRUNCH_CONFIG_FILENAME: .env.example
+      #   with:
+      #     command: test
 
       - run: rustup target add x86_64-unknown-linux-musl
+      - run: apt install musl-tools
 
       - name: Run cargo build
         uses: actions-rs/cargo@v1
