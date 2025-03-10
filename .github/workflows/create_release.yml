@@ -88,8 +88,8 @@ jobs:
 
       - name: Rename the binary and sha256 file to include the target version
         run: |
-          mv target/x86_64-unknown-linux-musl/release/crunch target/release/crunch.ubuntu-2204
-          mv target/x86_64-unknown-linux-musl/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2204
+          mv target/release/crunch target/release/crunch.ubuntu-2204
+          mv target/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2204
 
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
@@ -138,8 +138,8 @@ jobs:
 
       - name: Rename the binary and sha256 file to include the target version
         run: |
-          mv target/x86_64-unknown-linux-musl/release/crunch target/release/crunch.ubuntu-2004
-          mv target/x86_64-unknown-linux-musl/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2004
+          mv target/release/crunch target/release/crunch.ubuntu-2004
+          mv target/release/crunch.sha256 target/release/crunch.sha256.ubuntu-2004
 
       # Upload the binary and sha256 file as artifacts
       - uses: actions/upload-artifact@v4
