@@ -42,3 +42,4 @@ subxt = { version = "0.40.0", features = [
 subxt-signer = { version = "0.40.0", features = ["subxt"] }
 # substrate dependencies
 sp-core = "35.0.0"
+openssl = { version = "0.10", features = ["vendored"] }
